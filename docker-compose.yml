@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  metricscore:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=development
+      - DYNAMODB_ENDPOINT=http://dynamodb-local:8000
+      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=local
+      - AWS_SECRET_ACCESS_KEY=local
+    depends_on:
+      - dynamodb-local
+    command: python -m flask --app app.main run --host=0.0.0.0
+    networks:
+      - metricscore-network
+
+  dynamodb-local:
+    image: amazon/dynamodb-local:latest
+    ports:
+      - "8000:8000"
+    command: -jar DynamoDBLocal.jar -sharedDb -inMemory
+    networks:
+      - metricscore-network
+
+networks:
+  metricscore-network:
+    driver: bridge
